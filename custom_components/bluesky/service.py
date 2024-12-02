@@ -1,7 +1,8 @@
 import aiohttp
 from datetime import datetime, timezone
 from .const import PDSHOST
-
+import logging
+_LOGGER = logging.getLogger(__name__)
 async def create_session(BLUESKY_HANDLE, BLUESKY_PASSWORD):
     url = f"{PDSHOST}/xrpc/com.atproto.server.createSession"
     headers = {
