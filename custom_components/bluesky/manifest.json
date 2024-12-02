@@ -1,0 +1,15 @@
+{
+    "domain": "bluesky",
+    "name": "Bluesky Integration",
+    "version": "1.0.0",
+    "requirements": ["aiohttp"],
+    "dependencies": [],
+    "codeowners": ["@screamingtoaster"],
+    "iot_class": "cloud_push",
+    "config_flow": true,
+    "documentation": "https://github.com/ScreamingToaster/Bluesky-Integration",
+    "issue_tracker": "https://github.com/ScreamingToaster/Bluesky-Integration/issues"
+}
+
+
+
