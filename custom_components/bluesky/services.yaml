@@ -1,0 +1,9 @@
+post:
+  name: Post to Bluesky
+  description: Post a message to Bluesky
+  fields:
+    message:
+      name: Message
+      description: The message to post to Bluesky
+      required: true
+      example: "Hello, Bluesky!"
