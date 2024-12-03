@@ -4,12 +4,11 @@ Integration to allow for Bluesky notifications from Home assistant.  I got reall
 
 ## Features
 * Use Bluesky as a posting platform for notifications.
-* Has support for multi-posts.  Integration is aware of character limit and if message is longer than said limit, it will split the message into multiple numberd posts.
+* Has support for multi-posts.  Integration is aware of character limit and if message is longer than said limit, it will split the message into multiple numbered posts.
 
 ## Not Yet Implemented
-I am still working on the following features and hope to bring them to the integration in the near future.
 * Image Posting
-* Tagging.
+* Tagging
 
 ## Install Via HACS
 
@@ -71,4 +70,7 @@ Calls to the integration are simple.  Using the bluesky.post service, you provid
       pellentesque.
   ```
 ## Contributions Welcome!
-If I did a dumb or there is something you think you would like to integrate or help with, please open a pull request or open an issue and we will work together to make it happen!
+If I did a dumb, or if there is something you would like to contribute, please open a pull request or an issue. We will then collaborate to make the needed changes!
+
+## Contributors
+[CSTMChristina](https://github.com/cstmchristina) - Grammar validation
