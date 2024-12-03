@@ -1,8 +1,6 @@
 # Bluesky Post Handler
 
-Integration to allow for Bluesky notifications from Home assistant to Bluesky via posting.
-
-Currently only handles text only notifications.  Hope to add full handling for tagging and images in the future but as of right now they are not yet implemented.
+Integration to allow for Bluesky notifications from Home assistant.  I got really tired of Bluesky having no integration for Home Assistant and Twitter/X having one, so I made one.
 
 ## Features
 * Use Bluesky as a posting platform for notifications.
