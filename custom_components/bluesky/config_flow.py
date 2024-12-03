@@ -37,7 +37,7 @@ class BlueskyConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
       return self.async_show_form(
         step_id="user",
         data_schema=self._get_schema(),
-        errors={"base": "invalid_credentials"},
+        errors={"base": "auth"},
       )
 
     # Save the credentials in the config entry

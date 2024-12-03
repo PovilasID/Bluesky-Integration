@@ -1,0 +1,20 @@
+{
+  "title": "Bluesky Post Handler",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Bluesky Post Handler",
+        "data": {
+          "username": "Usrname",
+          "password": "App Password"
+        }
+      }
+    },
+    "error": {
+      "auth": "The username or password you entered is incorrect. Please check and try again."
+    },
+    "abort": {
+      "error_connecting": "Failed to connect, check your app password and try again"
+    }
+  }
+}

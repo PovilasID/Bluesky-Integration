@@ -1,0 +1,17 @@
+{
+  "config": {
+    "error": {
+      "auth": "he username or password you entered is incorrect. Please check and try again."
+    },
+    "step": {
+      "user": {
+        "data": {
+          "username": "Bluesky Handle",
+          "password": "App Password"
+        },
+        "description": "Enter your Bluesky Handle and App Password below.\nAn app password can be obtained from https://bsky.app/settings/app-passwords",
+        "title": "Bluesky Post Handler"
+      }
+    }
+  }
+}
