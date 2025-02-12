@@ -6,8 +6,8 @@ from .const import PDSHOST
 import logging
 charLimit = 293
 _LOGGER = logging.getLogger(__name__)
-async def create_session(BLUESKY_HANDLE, BLUESKY_PASSWORD):
-  url = f"{PDSHOST}/xrpc/com.atproto.server.createSession"
+async def create_session(BLUESKY_HANDLE, BLUESKY_PASSWORD, PDS_HOST):
+  url = f"{PDS_HOST}/xrpc/com.atproto.server.createSession"
   headers = {
     "Content-Type": "application/json"
   }
@@ -28,8 +28,8 @@ async def create_session(BLUESKY_HANDLE, BLUESKY_PASSWORD):
         error_text = await response.text()
         raise Exception(f"Failed to create session. Status: {response.status}, Error: {error_text}")
 
-async def post_to_bluesky(ACCESS_JWT, username, message):
-  url = f"{PDSHOST}/xrpc/com.atproto.repo.createRecord"
+async def post_to_bluesky(ACCESS_JWT, username, message, pds_host):
+  url = f"{pds_host}/xrpc/com.atproto.repo.createRecord"
   headers = {
     "Authorization": f"Bearer {ACCESS_JWT}",
     "Content-Type": "application/json"
@@ -77,8 +77,8 @@ async def smart_split(text): #Splits the post according to bluesky character lim
 
   return substrings
 
-async def parse_and_post(username, password, message):
-  ACCESS_JWT, _ = await create_session(username, password)
+async def parse_and_post(username, password, message, pds_host):
+  ACCESS_JWT, _ = await create_session(username, password, pds_host)
   #clean up line returns to make character limit parser easier for now.
   stringedMessage = message.replace("\n", " ")
   if len(stringedMessage) > charLimit:
@@ -86,10 +86,10 @@ async def parse_and_post(username, password, message):
     messageObj = await smart_split(stringedMessage)
     for idx, substring in enumerate(messageObj):
       parsedMessage = substring+" ("+str(idx+1)+"/"+str(len(messageObj))+")"
-      await post_to_bluesky(ACCESS_JWT, username, parsedMessage)
+      await post_to_bluesky(ACCESS_JWT, username, parsedMessage, pds_host)
       await asyncio.sleep(0.1) #make sure we dont accdentally post out of order.
   else:#if short enough post directly
-    await post_to_bluesky(ACCESS_JWT, username, stringedMessage)
+    await post_to_bluesky(ACCESS_JWT, username, stringedMessage, pds_host)
      
   
   

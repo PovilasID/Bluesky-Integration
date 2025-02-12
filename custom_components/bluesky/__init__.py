@@ -11,6 +11,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: config_entries.ConfigEnt
   """Set up Bluesky from a config entry."""
   username = entry.data["username"]
   password = entry.data["password"]
+  pds_host = entry.data["pds_host"]
 
   async def handle_post_service(call: ServiceCall):
     """Handle the service call to post a message."""
@@ -21,7 +22,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: config_entries.ConfigEnt
       return
     
     try:
-      result = await parse_and_post(username, password, message)
+      result = await parse_and_post(username, password, message, pds_host)
       hass.bus.async_fire("bluesky_event", result)
     except Exception as e:
       hass.logger.error(f"Failed to post to Bluesky: {e}")

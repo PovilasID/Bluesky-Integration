@@ -4,7 +4,7 @@ from homeassistant import config_entries
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.core import HomeAssistant
 import voluptuous as vol
-from .const import DOMAIN, PDSHOST
+from .const import DOMAIN
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -16,6 +16,7 @@ class BlueskyConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     """Initialize the config flow."""
     self.username = None
     self.password = None
+    self.pds_host = None
 
   async def async_step_user(self, user_input=None):
     """Handle the initial step to collect username and password."""
@@ -28,11 +29,12 @@ class BlueskyConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     # Store the user input
     self.username = user_input["username"]
     self.password = user_input["password"]
+    self.pds_host = user_input["pds_host"]
 
     # Validate the credentials (optional, but recommended)
     try:
       # Here, you can call a function to validate the credentials if needed
-      await self._validate_credentials(self.username, self.password)
+      await self._validate_credentials(self.username, self.password, self.pds_host)
     except Exception as e:
       return self.async_show_form(
         step_id="user",
@@ -46,6 +48,7 @@ class BlueskyConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
       data={
         "username": self.username,
         "password": self.password,
+        "pds_host": self.pds_host
       },
     )
 
@@ -55,12 +58,13 @@ class BlueskyConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
       {
         vol.Required("username"): str,
         vol.Required("password"): str,
+        vol.Required("pds_host"): str,
       }
     )
 
-  async def _validate_credentials(self, username, password):
+  async def _validate_credentials(self, username, password, pds_host):
     """Validate the provided credentials by making a request to the API."""
-    url = f"{PDSHOST}/xrpc/com.atproto.server.createSession"
+    url = f"{pds_host}/xrpc/com.atproto.server.createSession"
     headers = {
         "Content-Type": "application/json"
     }

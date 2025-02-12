@@ -5,8 +5,9 @@
       "user": {
         "title": "Bluesky Post Handler",
         "data": {
-          "username": "Usrname",
-          "password": "App Password"
+          "username": "Username",
+          "password": "App Password",
+          "pds_host": "Custom server"
         }
       }
     },
