@@ -58,7 +58,7 @@ class BlueskyConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
       {
         vol.Required("username"): str,
         vol.Required("password"): str,
-        vol.Required("pds_host"): str,
+        vol.Required("pds_host", default="https://bsky.social"): str,
       }
     )
 
