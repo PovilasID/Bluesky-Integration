@@ -48,6 +48,15 @@ Calls to the integration are simple.  Using the bluesky.post service, you provid
     message: Hello, Bluesky!
   ```
 
+* Example of posting an image:
+
+  ```yaml
+  action: bluesky.post
+  data:
+    message: Hello, Bluesky!
+    image: https://picsum.photos/200/300.webp
+  ```
+
 * Example of Multi-Line message:
 
   ```yaml
