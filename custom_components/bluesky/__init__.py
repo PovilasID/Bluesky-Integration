@@ -16,13 +16,14 @@ async def async_setup_entry(hass: HomeAssistant, entry: config_entries.ConfigEnt
   async def handle_post_service(call: ServiceCall):
     """Handle the service call to post a message."""
     message = call.data.get("message")
+    image = call.data.get("image")
     
     if not message:
       hass.logger.error("Bluesky integration: No message provided in the service call.")
       return
     
     try:
-      result = await parse_and_post(username, password, message, pds_host)
+      result = await parse_and_post(username, password, message, pds_host, image)
       hass.bus.async_fire("bluesky_event", result)
     except Exception as e:
       hass.logger.error(f"Failed to post to Bluesky: {e}")
@@ -30,6 +31,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: config_entries.ConfigEnt
   # Define the schema for the service
   service_schema = vol.Schema({
     vol.Required("message"): cv.string,
+    vol.Optional("image"): cv.string
   })
 
   # Register the service with the schema

@@ -4,8 +4,32 @@ import asyncio
 from datetime import datetime, timezone
 from .const import PDSHOST
 import logging
-charLimit = 293
+import base64
+
+import requests
 _LOGGER = logging.getLogger(__name__)
+
+
+async def upload_image(ACCESS_TOKEN, image_url, PDS_HOST):
+    # Download the image
+    async with aiohttp.ClientSession().get(image_url) as response:
+        response.raise_for_status()
+        image_content = await response.read()
+
+    # Upload the image to get a blob reference
+    async with aiohttp.ClientSession().post(
+        f"{PDS_HOST}/xrpc/com.atproto.repo.uploadBlob",
+        headers={"Authorization": f"Bearer {ACCESS_TOKEN}"},
+        data=image_content
+    ) as upload_response:
+        upload_response.raise_for_status()
+        blob_data = await upload_response.json()
+        _LOGGER.info("Bsky upload blob data: %s", blob_data)
+
+        return blob_data["blob"]
+
+charLimit = 293
+# _LOGGER = logging.getLogger(__name__)
 async def create_session(BLUESKY_HANDLE, BLUESKY_PASSWORD, PDS_HOST):
   url = f"{PDS_HOST}/xrpc/com.atproto.server.createSession"
   headers = {
@@ -28,20 +52,43 @@ async def create_session(BLUESKY_HANDLE, BLUESKY_PASSWORD, PDS_HOST):
         error_text = await response.text()
         raise Exception(f"Failed to create session. Status: {response.status}, Error: {error_text}")
 
-async def post_to_bluesky(ACCESS_JWT, username, message, pds_host):
+async def post_to_bluesky(ACCESS_JWT, username, message, pds_host, image):
   url = f"{pds_host}/xrpc/com.atproto.repo.createRecord"
   headers = {
     "Authorization": f"Bearer {ACCESS_JWT}",
     "Content-Type": "application/json"
   }
-  payload = {
-    "repo": username,
-    "collection": "app.bsky.feed.post",
-    "record": {
-      "text": message,
-      "createdAt": datetime.now(timezone.utc).isoformat()
+
+  if image: 
+    blob_ref = await upload_image(ACCESS_JWT, image, pds_host)
+
+    payload = {
+        "repo": username,
+        "collection": "app.bsky.feed.post",
+        "record": {
+            "text": message,
+            "createdAt": datetime.now(timezone.utc).isoformat(),
+            "embed": {
+                "$type": "app.bsky.embed.images",
+                "images": [
+                    {
+                        "alt": "Image description",
+                        "image": blob_ref
+                    }
+                ]
+            }
+        }
+
     }
-  }
+  else:
+    payload = {
+      "repo": username,
+      "collection": "app.bsky.feed.post",
+      "record": {
+        "text": message,
+        "createdAt": datetime.now(timezone.utc).isoformat()
+      }
+    }
 
   async with aiohttp.ClientSession() as session:
     async with session.post(url, headers=headers, json=payload) as response:
@@ -77,7 +124,7 @@ async def smart_split(text): #Splits the post according to bluesky character lim
 
   return substrings
 
-async def parse_and_post(username, password, message, pds_host):
+async def parse_and_post(username, password, message, pds_host, image=None):
   ACCESS_JWT, _ = await create_session(username, password, pds_host)
   #clean up line returns to make character limit parser easier for now.
   stringedMessage = message.replace("\n", " ")
@@ -86,10 +133,10 @@ async def parse_and_post(username, password, message, pds_host):
     messageObj = await smart_split(stringedMessage)
     for idx, substring in enumerate(messageObj):
       parsedMessage = substring+" ("+str(idx+1)+"/"+str(len(messageObj))+")"
-      await post_to_bluesky(ACCESS_JWT, username, parsedMessage, pds_host)
+      await post_to_bluesky(ACCESS_JWT, username, parsedMessage, pds_host, image)
       await asyncio.sleep(0.1) #make sure we dont accdentally post out of order.
-  else:#if short enough post directly
-    await post_to_bluesky(ACCESS_JWT, username, stringedMessage, pds_host)
+  else:#if short enough post directly   
+      await post_to_bluesky(ACCESS_JWT, username, stringedMessage, pds_host, image)
      
   
   
