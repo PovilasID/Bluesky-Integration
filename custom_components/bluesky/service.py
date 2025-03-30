@@ -52,52 +52,45 @@ async def create_session(BLUESKY_HANDLE, BLUESKY_PASSWORD, PDS_HOST):
         error_text = await response.text()
         raise Exception(f"Failed to create session. Status: {response.status}, Error: {error_text}")
 
-async def post_to_bluesky(ACCESS_JWT, username, message, pds_host, image):
-  url = f"{pds_host}/xrpc/com.atproto.repo.createRecord"
-  headers = {
-    "Authorization": f"Bearer {ACCESS_JWT}",
-    "Content-Type": "application/json"
-  }
+async def post_to_bluesky(ACCESS_JWT, username, message, pds_host, image=None):
+    url = f"{pds_host}/xrpc/com.atproto.repo.createRecord"
+    headers = {
+        "Authorization": f"Bearer {ACCESS_JWT}",
+        "Content-Type": "application/json"
+    }
 
-  if image: 
-    blob_ref = await upload_image(ACCESS_JWT, image, pds_host)
-
+    # Base payload structure
     payload = {
         "repo": username,
         "collection": "app.bsky.feed.post",
         "record": {
             "text": message,
-            "createdAt": datetime.now(timezone.utc).isoformat(),
-            "embed": {
-                "$type": "app.bsky.embed.images",
-                "images": [
-                    {
-                        "alt": "Image description",
-                        "image": blob_ref
-                    }
-                ]
-            }
+            "createdAt": datetime.now(timezone.utc).isoformat()
+        }
+    }
+
+    # Add embed for image
+    if image:
+        blob_ref = await upload_image(ACCESS_JWT, image, pds_host)
+        payload["record"]["embed"] = {
+            "$type": "app.bsky.embed.images",
+            "images": [
+                {
+                    "alt": "Image description",
+                    "image": blob_ref
+                }
+            ]
         }
 
-    }
-  else:
-    payload = {
-      "repo": username,
-      "collection": "app.bsky.feed.post",
-      "record": {
-        "text": message,
-        "createdAt": datetime.now(timezone.utc).isoformat()
-      }
-    }
 
-  async with aiohttp.ClientSession() as session:
-    async with session.post(url, headers=headers, json=payload) as response:
-      if response.status == 200:
-        data = await response.json()
-        print("Record created successfully:", data)
-      else:
-        error_text = await response.text()
-        raise Exception(f"Failed to create record. Status: {response.status}, Error: {error_text}")
+    async with aiohttp.ClientSession() as session:
+        async with session.post(url, headers=headers, json=payload) as response:
+            if response.status == 200:
+                data = await response.json()
+                print("Record created successfully:", data)
+            else:
+                error_text = await response.text()
+                raise Exception(f"Failed to create record. Status: {response.status}, Error: {error_text}")
 
 async def smart_split(text): #Splits the post according to bluesky character limits.
   substrings = []
@@ -137,6 +130,5 @@ async def parse_and_post(username, password, message, pds_host, image=None):
       await asyncio.sleep(0.1) #make sure we dont accdentally post out of order.
   else:#if short enough post directly   
       await post_to_bluesky(ACCESS_JWT, username, stringedMessage, pds_host, image)
-     
-  
-  
+
+
